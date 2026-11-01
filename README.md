@@ -21,6 +21,16 @@ entero en este Mac (localhost), es un proyecto independiente y es un piloto.
   nube de temas, buscador y tarjetas con imagen. Atajos de teclado: `j`/`k` moverse, `o` abrir, `s` guardar,
   `d` descartar, `+`/`-` más/menos así, `p` preguntar, `/` buscar, `c` abre el panel de criterios, `?` ayuda.
 
+## Requisitos
+
+- **Node 24 o superior** (probado con 26). El servidor corre TypeScript sin transpilar y usa `node:sqlite`, `--use-system-ca`
+  y `--env-file-if-exists`, que no existen en Node 22 ni en versiones anteriores. En Mac: `brew install node`.
+- **Una credencial para el modelo**: o `ANTHROPIC_API_KEY` en `.env`, o [Claude Code](https://code.claude.com) instalado
+  e iniciado con `claude` en esa máquina (ver «Credencial del modelo»). Sin una de las dos, la interfaz abre pero el
+  investigador y el chat responden «sin credencial».
+- Git y acceso a GitHub para instalar el widget de chat (es una dependencia que viene de un repo público).
+- Nada más: no hay Docker, ni base de datos externa, ni cuentas de Reddit o YouTube.
+
 ## Correr
 
 ```bash
