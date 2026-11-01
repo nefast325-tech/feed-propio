@@ -47,7 +47,7 @@ case "$MODO" in
   --launchagent)
     bash ops/instalar-launchagent.sh
     sleep 3
-    node --use-system-ca --env-file-if-exists=.env scripts/doctor.ts --servidor | tail -2
+    node --use-system-ca --env-file-if-exists=.env scripts/doctor.ts --servidor | grep -E "servidor|problema"
     ;;
   *)
     if curl -fs "http://127.0.0.1:$PUERTO/api/estado" >/dev/null 2>&1; then
@@ -56,7 +56,7 @@ case "$MODO" in
       nohup node --use-system-ca --env-file-if-exists=.env server/index.ts > data/servidor.log 2>&1 &
       sleep 3
     fi
-    node --use-system-ca --env-file-if-exists=.env scripts/doctor.ts --servidor | tail -2
+    node --use-system-ca --env-file-if-exists=.env scripts/doctor.ts --servidor | grep -E "servidor|problema"
     echo "Abre http://127.0.0.1:$PUERTO · log en data/servidor.log · para dejarlo fijo: bash ops/instalar-launchagent.sh"
     ;;
 esac
