@@ -27,6 +27,7 @@ export interface Criterio { slug: string; nombre: string; peso: number; palabras
 export interface Corrida { id: number; inicio: string; fin: string | null; disparo: string; estado: string; candidatos: number; aceptados: number; costo_usd: number; turnos: number; nota: string | null }
 export interface EstadoServidor { en_curso: boolean; gasto_hoy_usd: number; tope_usd_dia: number; cron: string; corridas: Corrida[]; bitacora: { t: string; msg: string }[] }
 export interface Cambios { item: Item; cambios: { criterio: string; peso: number }[]; pesoOrigen: number; nota: string | null }
+export interface Lectura { ok: true; item_id: string; titulo: string | null; autor: string | null; html: string; texto: string; palabras: number; cache: boolean }
 export interface Panorama { id: number; corrida: number; texto: string; destacado_id: string | null; creado: string; destacado: Item | null }
 export interface Estadisticas { porEstado: Record<string, number>; porFuente: Record<string, number>; senales: number; temas: { tema: string; n: number }[] }
 
@@ -40,6 +41,7 @@ export const api = {
   senal: (id: string, tipo: TipoSenal, motivo?: string) =>
     fetch(`/api/items/${id}/senal`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ tipo, motivo }) }).then((r) => j<Cambios>(r)),
   visto: (id: string) => fetch(`/api/items/${id}/visto`, { method: 'POST' }),
+  lectura: (id: string, otraVez = false) => fetch(`/api/items/${id}/lectura${otraVez ? '?otra_vez=1' : ''}`).then((r) => j<Lectura | { ok: false; motivo: string }>(r)),
   criterios: () => fetch('/api/criterios').then((r) => j<{ criterios: Criterio[]; vetos: string; pesos_origen: { origen: string; peso: number }[] }>(r)),
   estado: () => fetch('/api/estado').then((r) => j<EstadoServidor>(r)),
   panorama: () => fetch('/api/panorama').then((r) => j<Panorama | null>(r)),

@@ -13,12 +13,15 @@ entero en este Mac (localhost), es un proyecto independiente y es un piloto.
   cuatro a seis frases sobre qué entró y qué hilo lo une, con el ítem que hay que ver primero.
 - **Señales**: guardar, descartar, «más así», «menos así», con motivo opcional. Cada señal mueve el `peso` de los
   criterios (en el vault) y el peso del origen (en la base), y reordena el feed. Siempre puedes ver qué cambió.
+- **Lectura**: clic en el título o la portada de un artículo y se abre completo dentro del feed (Readability sobre
+  la página; Reddit vía el feed Atom del post), con tipografía de lectura, guardar/descartar y «preguntar» al chat.
+  Se baja una vez y queda en la base. ⌘-clic abre la página original; `Enter` lee la tarjeta enfocada.
 - **Chat**: el widget `@tp3/chat-widget` conectado a un agente local que lee el feed y el vault, explica, busca,
   edita criterios cuando se lo pides, guarda y lanza barridos. Si le pides investigar un tema, no te lo vuelca en
   el chat: busca, elige entre 3 y 8 piezas y las publica como tarjetas (etiqueta CHAT, sin corrida); en el chat solo
   te dice cuántas entraron, cuál mirar primero y si el tema merece volverse criterio.
 - **Portada**: panorama del día con el destacado, cifras (para ver, guardados, señales, gasto, próximo barrido),
-  nube de temas, buscador y tarjetas con imagen. Atajos de teclado: `j`/`k` moverse, `o` abrir, `s` guardar,
+  nube de temas, buscador y tarjetas con imagen. Atajos de teclado: `j`/`k` moverse, `Enter` leer aquí, `o` abrir la página, `s` guardar,
   `d` descartar, `+`/`-` más/menos así, `p` preguntar, `/` buscar, `c` abre el panel de criterios, `?` ayuda.
 
 ## Instalar con Claude

@@ -102,6 +102,15 @@ CREATE TABLE IF NOT EXISTS canales_youtube (
   nombre TEXT,
   creado TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'))
 );
+CREATE TABLE IF NOT EXISTS lecturas (
+  item_id TEXT PRIMARY KEY,
+  titulo TEXT,
+  autor TEXT,
+  html TEXT NOT NULL,
+  texto TEXT NOT NULL,
+  palabras INTEGER NOT NULL,
+  creado TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'))
+);
 CREATE TABLE IF NOT EXISTS conversaciones (
   sesion_widget TEXT PRIMARY KEY,
   sesion_agente TEXT,
@@ -261,6 +270,19 @@ export const canalesDb = {
   },
   guardar(handle: string, canalId: string, nombre: string | null) {
     db.prepare('INSERT OR REPLACE INTO canales_youtube (handle, canal_id, nombre) VALUES (?,?,?)').run(handle, canalId, nombre);
+  },
+};
+
+export interface LecturaGuardada { item_id: string; titulo: string | null; autor: string | null; html: string; texto: string; palabras: number; creado: string }
+export const lecturasDb = {
+  buscar(itemId: string): LecturaGuardada | null {
+    return (db.prepare('SELECT * FROM lecturas WHERE item_id = ?').get(itemId) as never) ?? null;
+  },
+  guardar(itemId: string, l: { titulo: string | null; autor: string | null; html: string; texto: string; palabras: number }) {
+    db.prepare('INSERT OR REPLACE INTO lecturas (item_id, titulo, autor, html, texto, palabras) VALUES (?,?,?,?,?,?)').run(itemId, l.titulo, l.autor, l.html, l.texto, l.palabras);
+  },
+  borrar(itemId: string) {
+    db.prepare('DELETE FROM lecturas WHERE item_id = ?').run(itemId);
   },
 };
 

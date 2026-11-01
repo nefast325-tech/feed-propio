@@ -14,7 +14,7 @@ export const idVideo = (url: string) => {
 
 const ETIQUETA: Record<string, string> = { youtube: 'YouTube', reddit: 'Reddit', rss: 'RSS', web: 'Web' };
 
-export function Portada({ item, grande = false, alReproducir }: { item: Item; grande?: boolean; alReproducir?: () => void }) {
+export function Portada({ item, grande = false, alReproducir, alLeer }: { item: Item; grande?: boolean; alReproducir?: () => void; alLeer?: () => void }) {
   const [rota, setRota] = useState(false);
   const video = item.fuente === 'youtube' ? idVideo(item.url) : null;
   const src = item.imagen ?? (video ? `https://i.ytimg.com/vi/${video}/hqdefault.jpg` : null);
@@ -36,7 +36,18 @@ export function Portada({ item, grande = false, alReproducir }: { item: Item; gr
       </button>
     );
   return (
-    <a className={`portada ${grande ? 'grande' : ''}`} href={item.url} target="_blank" rel="noreferrer noopener" tabIndex={-1}>
+    <a
+      className={`portada ${grande ? 'grande' : ''}`}
+      href={item.url}
+      target="_blank"
+      rel="noreferrer noopener"
+      tabIndex={-1}
+      onClick={(e) => {
+        if (!alLeer || e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
+        e.preventDefault();
+        alLeer();
+      }}
+    >
       {cuerpo}
     </a>
   );
@@ -49,6 +60,7 @@ export function Tarjeta({
   onTema,
   enfocada,
   onEnfocar,
+  onLeer,
 }: {
   item: Item;
   nombreCriterio: (s: string) => string;
@@ -56,6 +68,7 @@ export function Tarjeta({
   onTema: (tema: string) => void;
   enfocada: boolean;
   onEnfocar: () => void;
+  onLeer?: (item: Item) => void;
 }) {
   const [verPorQue, setVerPorQue] = useState(false);
   const [reproducir, setReproducir] = useState(false);
@@ -84,7 +97,7 @@ export function Tarjeta({
           <iframe src={`https://www.youtube-nocookie.com/embed/${video}?autoplay=1`} title={item.titulo} allow="autoplay; encrypted-media; picture-in-picture" allowFullScreen />
         </div>
       ) : (
-        <Portada item={item} alReproducir={() => setReproducir(true)} />
+        <Portada item={item} alReproducir={() => setReproducir(true)} alLeer={!video && onLeer ? () => onLeer(item) : undefined} />
       )}
       <div className="cuerpo">
         <div className="meta">
@@ -102,7 +115,17 @@ export function Tarjeta({
           </span>
         </div>
         <h3>
-          <a href={item.url} target="_blank" rel="noreferrer noopener">
+          <a
+            href={item.url}
+            target="_blank"
+            rel="noreferrer noopener"
+            title={video ? undefined : 'Leer aquí · clic con ⌘ para abrir la página'}
+            onClick={(e) => {
+              if (video || !onLeer || e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
+              e.preventDefault();
+              onLeer(item);
+            }}
+          >
             {item.titulo}
           </a>
         </h3>

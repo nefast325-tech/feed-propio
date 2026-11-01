@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Cron } from 'croner';
 import { api, haceCuanto, type Cambios, type Criterio, type Estadisticas, type Estado, type EstadoServidor, type Item, type Panorama, type TipoSenal } from './api.ts';
 import { Portada, Tarjeta } from './Tarjeta.tsx';
+import { Lector } from './Lector.tsx';
 import { Chat, preguntarAlChat } from './Chat.tsx';
 
 type Vista = Estado | 'todos';
@@ -25,6 +26,7 @@ export function App() {
   const [aviso, setAviso] = useState<string | null>(null);
   const [verCriterios, setVerCriterios] = useState(false);
   const [verAyuda, setVerAyuda] = useState(false);
+  const [leyendo, setLeyendo] = useState<Item | null>(null);
   const [bitacora, setBitacora] = useState<{ t: string; msg: string }[]>([]);
   const [enfocado, setEnfocado] = useState<string | null>(null);
   const [cargando, setCargando] = useState(true);
@@ -110,7 +112,8 @@ export function App() {
       switch (e.key) {
         case 'j': case 'ArrowDown': e.preventDefault(); ir(idx + 1); break;
         case 'k': case 'ArrowUp': e.preventDefault(); ir(idx - 1); break;
-        case 'o': case 'Enter': if (actual) window.open(actual.url, '_blank', 'noopener'); break;
+        case 'o': if (actual) window.open(actual.url, '_blank', 'noopener'); break;
+        case 'Enter': if (actual) { if (actual.fuente === 'youtube') window.open(actual.url, '_blank', 'noopener'); else setLeyendo(actual); } break;
         case 's': if (actual && actual.estado !== 'guardado') void onSenal(actual.id, 'guardar'); break;
         case 'd': if (actual && actual.estado !== 'descartado') { void onSenal(actual.id, 'descartar'); ir(idx + 1); } break;
         case '+': case '=': if (actual) void onSenal(actual.id, 'mas'); break;
@@ -119,12 +122,12 @@ export function App() {
         case '/': e.preventDefault(); buscador.current?.focus(); break;
         case '?': setVerAyuda((v) => !v); break;
         case 'c': setVerCriterios((v) => !v); break;
-        case 'Escape': setVerAyuda(false); setVerCriterios(false); setEnfocado(null); break;
+        case 'Escape': if (leyendo) { setLeyendo(null); break; } setVerAyuda(false); setVerCriterios(false); setEnfocado(null); break;
       }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [visibles, enfocado, onSenal]);
+  }, [visibles, enfocado, onSenal, leyendo]);
 
   const porVer = stats?.porEstado.nuevo ?? 0;
   const ultima = estado?.corridas.find((c) => c.estado !== 'en-curso');
@@ -178,7 +181,7 @@ export function App() {
           </div>
           {panorama.destacado && (
             <div className="destacado">
-              <Portada item={panorama.destacado} grande alReproducir={() => window.open(panorama.destacado!.url, '_blank', 'noopener')} />
+              <Portada item={panorama.destacado} grande alReproducir={() => window.open(panorama.destacado!.url, '_blank', 'noopener')} alLeer={panorama.destacado.fuente !== 'youtube' ? () => setLeyendo(panorama.destacado) : undefined} />
               <p className="rotulo">Para ver primero</p>
               <h2>
                 <a href={panorama.destacado.url} target="_blank" rel="noreferrer noopener">{panorama.destacado.titulo}</a>
@@ -267,7 +270,7 @@ export function App() {
           </p>
         )}
         {visibles.map((i) => (
-          <Tarjeta key={i.id} item={i} nombreCriterio={nombreCriterio} onSenal={onSenal} onTema={setBusqueda} enfocada={enfocado === i.id} onEnfocar={() => setEnfocado(i.id)} />
+          <Tarjeta key={i.id} item={i} nombreCriterio={nombreCriterio} onSenal={onSenal} onTema={setBusqueda} enfocada={enfocado === i.id} onEnfocar={() => setEnfocado(i.id)} onLeer={setLeyendo} />
         ))}
       </main>
 
@@ -277,7 +280,8 @@ export function App() {
             <h2>Atajos</h2>
             <dl>
               <dt>j / k</dt><dd>siguiente / anterior tarjeta</dd>
-              <dt>o</dt><dd>abrir el enlace</dd>
+              <dt>Enter</dt><dd>leer el artículo aquí</dd>
+              <dt>o</dt><dd>abrir la página original</dd>
               <dt>s</dt><dd>guardar</dd>
               <dt>d</dt><dd>descartar y pasar a la siguiente</dd>
               <dt>+ / −</dt><dd>más así / menos así</dd>
@@ -291,6 +295,7 @@ export function App() {
         </div>
       )}
 
+      {leyendo && <Lector item={items.find((i) => i.id === leyendo.id) ?? leyendo} onCerrar={() => setLeyendo(null)} onSenal={(id, tipo) => void onSenal(id, tipo)} />}
       <Chat />
     </div>
   );

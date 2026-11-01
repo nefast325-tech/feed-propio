@@ -1,5 +1,6 @@
 import { Hono } from 'hono';
-import { corridasDb, itemsDb, panoramasDb, pesosOrigenDb, senalesDb, type Estado } from '../db.ts';
+import { corridasDb, itemsDb, lecturasDb, panoramasDb, pesosOrigenDb, senalesDb, type Estado } from '../db.ts';
+import { leerArticulo } from '../fuentes/lectura.ts';
 import { leerCriterios, leerVetos, listarGuardados, textoCriterio } from '../vault.ts';
 import { aplicarSenal } from '../puntaje.ts';
 import { lanzarBarrido, hayBarridoEnCurso, completarFichas } from '../agente/investigador.ts';
@@ -26,6 +27,26 @@ api.post('/items/fichas', async (c) => {
   const pendientes = itemsDb.sinFicha(40);
   const n = await completarFichas(pendientes);
   return c.json({ revisados: pendientes.length, con_portada: n });
+});
+
+/** Texto completo del artículo para leerlo en el feed. Se baja una vez y queda en la base; ?otra_vez=1 lo vuelve a bajar. */
+api.get('/items/:id/lectura', async (c) => {
+  const id = c.req.param('id');
+  const item = itemsDb.porId(id);
+  if (!item) return c.json({ ok: false, motivo: 'no existe el ítem' }, 404);
+  if (item.fuente === 'youtube') return c.json({ ok: false, motivo: 'es un video: se reproduce en la tarjeta' });
+  if (c.req.query('otra_vez')) lecturasDb.borrar(id);
+  const guardada = lecturasDb.buscar(id);
+  if (guardada) return c.json({ ok: true, ...guardada, cache: true });
+  try {
+    const l = await leerArticulo(item.url);
+    if (!l) return c.json({ ok: false, motivo: 'no encontré un cuerpo de artículo en esa página' });
+    lecturasDb.guardar(id, l);
+    itemsDb.marcarVisto(id);
+    return c.json({ ok: true, item_id: id, ...l, cache: false });
+  } catch (e) {
+    return c.json({ ok: false, motivo: `no pude bajar la página: ${e instanceof Error ? e.message : String(e)}` });
+  }
 });
 
 api.post('/items/:id/visto', (c) => {
