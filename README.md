@@ -21,6 +21,17 @@ entero en este Mac (localhost), es un proyecto independiente y es un piloto.
   nube de temas, buscador y tarjetas con imagen. Atajos de teclado: `j`/`k` moverse, `o` abrir, `s` guardar,
   `d` descartar, `+`/`-` más/menos así, `p` preguntar, `/` buscar, `c` abre el panel de criterios, `?` ayuda.
 
+## Instalar con Claude
+
+Si tienes Claude Code, pégale esto y él hace el resto (clona, instala, verifica la credencial, te pregunta tus
+temas, escribe los criterios y deja el servidor corriendo):
+
+> Clona https://github.com/nefast325-tech/feed-propio en una carpeta, lee su CLAUDE.md y sigue el procedimiento
+> de instalación hasta que `npm run doctor -- --servidor` quede todo en ✓.
+
+El procedimiento está en [`CLAUDE.md`](CLAUDE.md); a mano son dos comandos: `bash ops/instalar.sh` y abrir
+http://127.0.0.1:4400. `npm run doctor` dice qué falta.
+
 ## Requisitos
 
 - **Node 24 o superior** (probado con 26). El servidor corre TypeScript sin transpilar y usa `node:sqlite`, `--use-system-ca`
@@ -80,6 +91,8 @@ una corrida vuelve a dispararse, revisa primero `scripts/diag-costo.ts`.
 ```
 server/            Node 26 + TypeScript (sin transpilar), Hono, ws, node:sqlite
   agente/          investigador.ts (barrido) · chat.ts (widget) · comun.ts (opciones y credencial)
+scripts/           doctor.ts (verificación) · diag-costo.ts
+ops/               instalar.sh · instalar-launchagent.sh · plist del LaunchAgent
   fuentes/         reddit.ts · rss.ts · youtube.ts · ficha.ts (Open Graph) · recolector.ts
   vault.ts         lectura y escritura de criterios, vetos y notas guardadas
   puntaje.ts       puntaje_final = puntaje × peso(criterios) × peso(origen); señales
